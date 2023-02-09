@@ -8,6 +8,7 @@
 #include <frc/Timer.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <iostream>
+#include <frc/Joystick.h>
 
 void Robot::RobotInit() {
 
@@ -47,8 +48,8 @@ void Robot::AutonomousPeriodic() {
   if(m_timer.Get()< 5_s) {
     drivespeed = 0.5;
 
-  }
-  else{
+  
+  }else{
     drivespeed = 0.0; 
   }
   setDriveMotors(drivespeed,0.0);
@@ -57,6 +58,20 @@ void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
 double driveSpeed;
+frc::Joystick::AxisType kYAxis;
+
+if(m_joystick.GetRawAxis(kYAxis) > 1) {
+
+driveSpeed = 0.5;
+setDriveMotors(driveSpeed,0.0);
+
+}
+else{
+  driveSpeed = 0.5;
+}
+
+
+
 if (m_joystick.GetRawButton(1)) {
     std::cout << "drivespeed non nulle" << std::endl;
     driveSpeed = 0.5;
@@ -65,6 +80,7 @@ if (m_joystick.GetRawButton(1)) {
 else{
     driveSpeed = 0.0;
 }
+
 setDriveMotors(driveSpeed,0.0);
 
 
