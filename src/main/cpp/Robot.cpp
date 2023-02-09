@@ -57,29 +57,27 @@ void Robot::AutonomousPeriodic() {
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
-double driveSpeed;
-frc::Joystick::AxisType kYAxis;
+ 
+  setDriveMotors(-m_joystick.GetY(), -m_joystick.GetZ());
 
-if(m_joystick.GetRawAxis(kYAxis) > 1) {
-
-driveSpeed = 0.5;
-setDriveMotors(driveSpeed,0.0);
-
-}
-else{
-  driveSpeed = 0.5;
-}
+  /*double forward = utils::Deadband(m_Forward());
+  double turn = utils::Deadband(m_Turn());
+  double slide = std::abs(m_Slide());
+  forward = slide;
+  turn= 0.5;
 
 
+  setDriveMotors(forward, turn);*/
+  double driveSpeed;
 
-if (m_joystick.GetRawButton(1)) {
+ if (m_joystick.GetRawButton(1)) {
     std::cout << "drivespeed non nulle" << std::endl;
     driveSpeed = 0.5;
 
-}
-else{
+  }
+ else{
     driveSpeed = 0.0;
-}
+ }
 
 setDriveMotors(driveSpeed,0.0);
 
