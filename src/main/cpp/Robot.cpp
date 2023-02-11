@@ -70,7 +70,7 @@ void Robot::AutonomousPeriodic() {
   if (m_autoSelected == kAutoNameCustom) {
     // Custom Auto goes here
     //while (m_count < 20000) {
-   if  (m_timer.Get() < 10_s) {
+   if  (m_timer.Get() < 5_s) {
     std::cout << "on est dans le if" << std::endl;
     setDriveMotors(0.4, 0.0);
     m_count++;
@@ -82,24 +82,24 @@ void Robot::AutonomousPeriodic() {
     else {
       setDriveMotors(0.0, 0.0);
    }
-  }
-  else {
+  
+  }else {
     // Default Auto goes here
      //while (m_count < 20000) {
-    if  (m_timer.Get() < 10_s) {
+  if  (m_timer.Get() < 5_s) {
     std::cout << "on est dans le if" << std::endl;
     setDriveMotors(0.4, 0.0);
     m_count++;
    } 
-  } 
-    //else if (m_timer.Get() > 1_s && m_timer.Get() < 2_s) {
-    //setDriveMotors(-0.3, 0.0);
-    //m_count++;
-   //}  
-    if (m_timer.Get() > 1_s && m_timer.Get() < 2_s) {
-    setDriveMotors(0.0, 0.4);   
-   }
-  }
+   
+  else  {
+    setDriveMotors(0.0, 0.0);
+   
+  }  
+   
+ }
+}
+
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
