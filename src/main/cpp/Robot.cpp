@@ -7,6 +7,8 @@
 #include <fmt/core.h>
 #include <frc/Timer.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/Joystick.h>
+#include <frc2/command/CommandScheduler.h>
 #include <iostream>
 #include <frc/Joystick.h>
 
@@ -29,7 +31,8 @@ void Robot::RobotInit() {
 
 void Robot::RobotPeriodic()
 {
-
+  
+  frc2::CommandScheduler::GetInstance().Run();
 }
 void Robot::setDriveMotors(double forward, double turn){
   double left = forward - turn;
@@ -40,20 +43,63 @@ void Robot::setDriveMotors(double forward, double turn){
 
 
 void Robot::AutonomousInit() {
-  m_timer.Reset();
-  m_timer.Start();
-}
-void Robot::AutonomousPeriodic() {
-  double drivespeed;
-  if(m_timer.Get()< 5_s) {
-    drivespeed = 0.5;
+   m_autoSelected = m_chooser.GetSelected();
+  // m_autoSelected = SmartDashboard::GetString("Auto Selector",
+  //     kAutoNameDefault);
+  fmt::print("Auto selected: {}\n", m_autoSelected);
 
-  
-  }else{
-    drivespeed = 0.0; 
+  if (m_autoSelected == kAutoNameCustom) {
+    // Custom Auto goes here
+    setDriveMotors(0.0, 0.0);
+    m_count=0;
+    m_timer.Reset();
+    m_timer.Start();
+  } else {
+    // Default Auto goes here
+    setDriveMotors(0.0, 0.0);
+    m_count=0;
+    m_timer.Reset();
+    m_timer.Start();
   }
-  setDriveMotors(drivespeed,0.0);
 }
+
+
+void Robot::AutonomousPeriodic() {
+  std::cout << "count: " << m_count << std::endl;
+ 
+  if (m_autoSelected == kAutoNameCustom) {
+    // Custom Auto goes here
+    //while (m_count < 20000) {
+   if  (m_timer.Get() < 10_s) {
+    std::cout << "on est dans le if" << std::endl;
+    setDriveMotors(0.4, 0.0);
+    m_count++;
+   }  
+    //else if  (m_timer.Get() > 1_s && m_timer.Get() < 2_s) {
+    //setDriveMotors(0.0, -0.3);
+    //m_count++;
+   //}  
+    else {
+      setDriveMotors(0.0, 0.0);
+   }
+  }
+  else {
+    // Default Auto goes here
+     //while (m_count < 20000) {
+    if  (m_timer.Get() < 10_s) {
+    std::cout << "on est dans le if" << std::endl;
+    setDriveMotors(0.4, 0.0);
+    m_count++;
+   } 
+  } 
+    //else if (m_timer.Get() > 1_s && m_timer.Get() < 2_s) {
+    //setDriveMotors(-0.3, 0.0);
+    //m_count++;
+   //}  
+    if (m_timer.Get() > 1_s && m_timer.Get() < 2_s) {
+    setDriveMotors(0.0, 0.4);   
+   }
+  }
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {

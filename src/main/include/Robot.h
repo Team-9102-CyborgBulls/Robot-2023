@@ -14,7 +14,7 @@
 class Robot : public frc::TimedRobot
 {
 public:
-  void setDriveMotors(double forward, double turn);
+ void setDriveMotors(double forward, double turn);
   void RobotInit() override;
   void RobotPeriodic() override;
   void TeleopInit() override;
@@ -26,6 +26,7 @@ private:
  frc::Joystick m_joystick{0};
  frc::Timer m_timer;
  frc::SendableChooser<std::string> m_chooser;
+ //frc2::CommandScheduler::CommandScheduler 
   const std::string kAutoNameDefault = "Default";
   const std::string kAutoNameCustom = "My Auto";
   std::string m_autoSelected;
