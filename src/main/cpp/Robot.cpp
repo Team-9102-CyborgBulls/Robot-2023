@@ -2,8 +2,27 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-#include "Robot.h"
+#include <cstdio>
+#include <span>
+#include <sstream>
+#include <string>
+#include <thread>
+#include <frc/TimedRobot.h>
+#include <frc/apriltag/AprilTagDetection.h>
+#include <frc/apriltag/AprilTagDetector.h>
+#include <frc/apriltag/AprilTagPoseEstimator.h>
+#include <frc/geometry/Transform3d.h>
+#include <networktables/IntegerArrayTopic.h>
+#include <networktables/NetworkTableInstance.h>
+#include <opencv2/core/core.hpp>
+#include <opencv2/core/types.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <units/angle.h>
+#include <units/length.h>
+#include <cameraserver/CameraServer.h>
+#include <fmt/format.h>
 
+#include "Robot.h"
 #include <fmt/core.h>
 #include <frc/Timer.h>
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -26,6 +45,21 @@ void Robot::RobotInit() {
   m_MotorRightFollow.ConfigVoltageCompSaturation(12);
   m_MotorLeft.ConfigVoltageCompSaturation(12);
   m_MotorLeftFollow.ConfigVoltageCompSaturation(12);
+  m_chooser.SetDefaultOption(kAutoNameDefault, kAutoNameDefault);
+  m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
+  frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
+
+  
+    // We need to run our vision program in a separate thread. If not, our robot
+    // program will not run.
+#if defined(__linux__) || defined(_WIN32)
+    std::thread visionThread(VisionThread);
+    visionThread.detach();
+#else
+    std::fputs("Vision only available on Linux or Windows.\n", stderr);
+    std::fflush(stderr);
+#endif
+  
 
 }
 
@@ -70,9 +104,9 @@ void Robot::AutonomousPeriodic() {
   if (m_autoSelected == kAutoNameCustom) {
     // Custom Auto goes here
     //while (m_count < 20000) {
-   if  (m_timer.Get() < 5_s) {
+   if  (m_timer.Get() < 2_s) {
     std::cout << "on est dans le if" << std::endl;
-    setDriveMotors(0.4, 0.0);
+    setDriveMotors(-0.4, 0.0);
     m_count++;
    }  
     //else if  (m_timer.Get() > 1_s && m_timer.Get() < 2_s) {
@@ -86,9 +120,9 @@ void Robot::AutonomousPeriodic() {
   }else {
     // Default Auto goes here
      //while (m_count < 20000) {
-  if  (m_timer.Get() < 5_s) {
+  if  (m_timer.Get() < 2_s) {
     std::cout << "on est dans le if" << std::endl;
-    setDriveMotors(0.4, 0.0);
+    setDriveMotors(0.0, 0.4);
     m_count++;
    } 
    
@@ -103,9 +137,36 @@ void Robot::AutonomousPeriodic() {
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
- 
-  setDriveMotors(-m_joystick.GetY(), -m_joystick.GetZ());
+double driveSpeed;
+double driveTurn;
 
+
+ //m_robotDrive.ArcadeDrive(-m_joystick.GetY(), -m_joystick.GetX());
+//driveSpeed = 0.2;
+//driveTurn = 0.2;
+
+/*if(m_joystick.GetY()> 0.5){
+   setDriveMotors(driveSpeed, driveTurn);
+
+ }else if(m_joystick.GetY() < -0.5){
+  setDriveMotors(-driveSpeed, driveTurn);
+ }
+ else{
+  setDriveMotors(0.0, 0.0);
+}
+
+if(m_joystick.GetZ()> 0.5){
+   setDriveMotors(0.0, driveTurn);
+
+ }else if(m_joystick.GetZ() < -0.5){
+  setDriveMotors(0.0, -driveTurn);
+ }
+ else{
+  setDriveMotors(0.0, 0.0);
+}*/
+
+
+  
   /*double forward = utils::Deadband(m_Forward());
   double turn = utils::Deadband(m_Turn());
   double slide = std::abs(m_Slide());
@@ -114,9 +175,9 @@ void Robot::TeleopPeriodic() {
 
 
   setDriveMotors(forward, turn);*/
-  double driveSpeed;
+  
 
- if (m_joystick.GetRawButton(1)) {
+/*if (m_joystick.GetRawButton(1)) {
     std::cout << "drivespeed non nulle" << std::endl;
     driveSpeed = 0.5;
 
@@ -125,7 +186,7 @@ void Robot::TeleopPeriodic() {
     driveSpeed = 0.0;
  }
 
-setDriveMotors(driveSpeed,0.0);
+  setDriveMotors(driveSpeed,0.0);*/
 
 
 
