@@ -33,7 +33,7 @@
 
 class Robot : public frc::TimedRobot
 {
-  #if defined(__linux__) || defined(_WIN32)
+  //#if defined(__linux__) || defined(_WIN32)
  
 public:
  void setDriveMotors(double forward, double turn);
@@ -63,7 +63,7 @@ private:
   std::function<double()> m_Slide;
   //frc::DifferentialDrive m_robotDrive{m_MotorLeft, m_MotorRight};
   
-  static void VisionThread() {
+  /*static void VisionThread() {
     frc::AprilTagDetector detector;
     // look for tag16h5, don't correct any error bits
     detector.AddFamily("tag16h5", 0);
@@ -172,5 +172,5 @@ private:
       outputStream.PutFrame(mat);
     }
   }
-  #endif
+  #endif*/
 };

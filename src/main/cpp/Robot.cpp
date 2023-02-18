@@ -52,13 +52,13 @@ void Robot::RobotInit() {
   
     // We need to run our vision program in a separate thread. If not, our robot
     // program will not run.
-#if defined(__linux__) || defined(_WIN32)
+/*#if defined(__linux__) || defined(_WIN32)
     std::thread visionThread(VisionThread);
     visionThread.detach();
 #else
     std::fputs("Vision only available on Linux or Windows.\n", stderr);
     std::fflush(stderr);
-#endif
+#endif*/
   
 
 }
@@ -141,7 +141,7 @@ double driveSpeed;
 double driveTurn;
 
 
- //m_robotDrive.ArcadeDrive(-m_joystick.GetY(), -m_joystick.GetX());
+//m_robotDrive.ArcadeDrive(-m_joystick.GetY(), -m_joystick.GetX());
 //driveSpeed = 0.2;
 //driveTurn = 0.2;
 
