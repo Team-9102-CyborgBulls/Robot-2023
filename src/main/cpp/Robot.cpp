@@ -21,8 +21,9 @@
 #include <units/length.h>
 #include <cameraserver/CameraServer.h>
 #include <fmt/format.h>
-
+#include "Constants.h"
 #include "Robot.h"
+#include "lib/Utils.h"
 #include <fmt/core.h>
 #include <frc/Timer.h>
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -30,13 +31,15 @@
 #include <frc2/command/CommandScheduler.h>
 #include <iostream>
 #include <frc/Joystick.h>
+#include <frc/motorcontrol/MotorControllerGroup.h>
+#include <frc/motorcontrol/Talon.h>
 
 void Robot::RobotInit() {
 
-  m_MotorRight.SetInverted(true);
-  m_MotorRightFollow.SetInverted(true);
-  m_MotorLeft.SetInverted(false);
-  m_MotorLeftFollow.SetInverted(false);
+  m_MotorRight.SetInverted(false);
+  m_MotorRightFollow.SetInverted(false);
+  m_MotorLeft.SetInverted(true);
+  m_MotorLeftFollow.SetInverted(true);
 
   m_MotorRightFollow.Follow(m_MotorRight);
   m_MotorLeftFollow.Follow(m_MotorLeft);
@@ -137,11 +140,31 @@ void Robot::AutonomousPeriodic() {
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
-double driveSpeed;
-double driveTurn;
+  double y = -m_joystick.GetY();
+  double z = m_joystick.GetZ();
+  double forward = utils::Deadband(y);
+  double turn = utils::Deadband(z);
+  double v = forward * VMAX;
+  double w = turn * WMAX;
+
+  double left_wheel = v + (w * HALF_TRACKWIDTH);
+  double right_wheel = v - (w * HALF_TRACKWIDTH);
+
+  double k;
+  k = 1.0 / (NMAX(VMAX, NMAX(NABS(left_wheel), NABS(right_wheel))));
+  left_wheel *= k;
+  right_wheel *= k;
+
+  m_MotorRight.Set(ctre::phoenix::motorcontrol::TalonSRXControlMode::PercentOutput, left_wheel); //
+  m_MotorLeft.Set(ctre::phoenix::motorcontrol::TalonSRXControlMode::PercentOutput, right_wheel); // 
+ 
+
+//m_robotDrive.ArcadeDrive(-m_joystick.GetY(), m_joystick.GetX());
+//double driveSpeed;
+//double driveTurn;
 
 
-//m_robotDrive.ArcadeDrive(-m_joystick.GetY(), -m_joystick.GetX());
+//m_robotDrive.ArcadeDrive(0.5, 0.5, 0.0);
 //driveSpeed = 0.2;
 //driveTurn = 0.2;
 

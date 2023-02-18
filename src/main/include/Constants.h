@@ -24,3 +24,17 @@
 // ################## VOLTAGE_COMPENSATION ##################
 // Drivetrain
 #define VOLTAGE_COMPENSATION_DRIVETRAIN_MOTOR 11.0
+
+
+#define TRACKWIDTH 0.61f
+#define HALF_TRACKWIDTH (TRACKWIDTH / 2.0f)
+
+#define AMAX 5.1 // Acceleration Max  au PIF .. à définir aux encodeurs
+#define VMAX 3.4 // vitesse Max  théorique (3,395472 sur JVN-DT) .. à vérifier aux encodeurs
+#define WMAX                     \
+  (((2.0 * VMAX) / TRACKWIDTH) / \
+   1.7) // vitesse angulaire Max theorique    .. à modifier avec Garice
+
+#define NABS(a) (((a) < 0) ? -(a) : (a))     // VALEUR ABSOLUE
+#define NMAX(a, b) (((a) > (b)) ? (a) : (b)) // Max
+#define NMIN(a, b) (((a) < (b)) ? (a) : (b)) // Min

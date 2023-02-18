@@ -30,6 +30,10 @@
 #include <ctre/phoenix/motorcontrol/can/TalonSRX.h>
 #include <frc/smartdashboard/SendableChooser.h>
 #include <frc/drive/DifferentialDrive.h>
+#include <frc/motorcontrol/MotorControllerGroup.h>
+#include <frc/motorcontrol/Talon.h>
+
+
 
 class Robot : public frc::TimedRobot
 {
@@ -54,6 +58,7 @@ private:
   const std::string kAutoNameDefault = "Default";
   const std::string kAutoNameCustom = "My Auto";
   std::string m_autoSelected;
+  
   ctre::phoenix::motorcontrol::can::TalonSRX m_MotorRight{CAN_ID_DRIVETRAIN_MOTOR_RIGHT};
   ctre::phoenix::motorcontrol::can::TalonSRX m_MotorRightFollow{CAN_ID_DRIVETRAIN_MOTOR_RIGHT_FOLLOW};
   ctre::phoenix::motorcontrol::can::TalonSRX m_MotorLeft{CAN_ID_DRIVETRAIN_MOTOR_LEFT};
@@ -62,6 +67,8 @@ private:
   std::function<double()> m_Turn;
   std::function<double()> m_Slide;
   //frc::DifferentialDrive m_robotDrive{m_MotorLeft, m_MotorRight};
+  //void frc::DifferentialDrive::ArcadeDrive(	double xSpeed, double zRotation, bool squareInputs = true );		
+
   
   /*static void VisionThread() {
     frc::AprilTagDetector detector;
