@@ -8,17 +8,11 @@
 #include <string>
 #include <thread>
 #include <frc/TimedRobot.h>
-#include <frc/apriltag/AprilTagDetection.h>
-#include <frc/apriltag/AprilTagDetector.h>
-#include <frc/apriltag/AprilTagPoseEstimator.h>
-#include <frc/geometry/Transform3d.h>
+
+
 #include <networktables/IntegerArrayTopic.h>
 #include <networktables/NetworkTableInstance.h>
-#include <opencv2/core/core.hpp>
-#include <opencv2/core/types.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <units/angle.h>
-#include <units/length.h>
+
 #include <cameraserver/CameraServer.h>
 #include <fmt/format.h>
 #include "Constants.h"
@@ -33,6 +27,10 @@
 #include <frc/Joystick.h>
 #include <frc/motorcontrol/MotorControllerGroup.h>
 #include <frc/motorcontrol/Talon.h>
+#include <frc/controller/PIDController.h>
+#include <frc/Encoder.h>
+#include <frc/XboxController.h>
+
 
 void Robot::RobotInit() {
 
@@ -52,17 +50,25 @@ void Robot::RobotInit() {
   m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
 
+  // Get the USB camera from CameraServer
+    cs::UsbCamera camera = frc::CameraServer::StartAutomaticCapture();
+    // Set the resolution
+    camera.SetResolution(640/2, 480/2);
+    camera.SetFPS(120);
   
-    // We need to run our vision program in a separate thread. If not, our robot
-    // program will not run.
-/*#if defined(__linux__) || defined(_WIN32)
-    std::thread visionThread(VisionThread);
-    visionThread.detach();
-#else
-    std::fputs("Vision only available on Linux or Windows.\n", stderr);
-    std::fflush(stderr);
-#endif*/
-  
+   // Resets the encoder to read a distance of zero
+   encoder.Reset();
+
+   encoder.SetDistancePerPulse(1.0/256.0);
+   encoder.GetDistance();
+   // Gets whether the encoder is stopped
+   encoder.GetStopped();
+   // Gets the last direction in which the encoder moved
+   encoder.GetDirection();
+   // Gets the current period of the encoder
+   encoder.GetPeriod();
+
+
 
 }
 
@@ -77,7 +83,6 @@ void Robot::setDriveMotors(double forward, double turn){
   m_MotorRight.Set(ctre::phoenix::motorcontrol::TalonSRXControlMode::PercentOutput, right);
   m_MotorLeft.Set(ctre::phoenix::motorcontrol::TalonSRXControlMode::PercentOutput, left);
 }
-
 
 void Robot::AutonomousInit() {
    m_autoSelected = m_chooser.GetSelected();
@@ -140,10 +145,18 @@ void Robot::AutonomousPeriodic() {
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
-  double y = -m_joystick.GetY();
-  double z = m_joystick.GetZ();
+
+//double setpoint = pid.GetSetpoint();
+// Calculates the output of the PID algorithm based on the sensor reading
+// and sends it to a motor
+//m_ArmMotor.Set(pid.Calculate(encoder.GetDistance(), setpoint));
+
+  //double y = -m_joystick.GetY();
+  //double z = m_joystick.GetZ();
+  double y = -m_XboxController.GetLeftY();
+  double x = m_XboxController.GetRightX();
   double forward = utils::Deadband(y);
-  double turn = utils::Deadband(z);
+  double turn = utils::Deadband(x);
   double v = forward * VMAX;
   double w = turn * WMAX;
 
@@ -156,63 +169,19 @@ void Robot::TeleopPeriodic() {
   right_wheel *= k;
 
   m_MotorRight.Set(ctre::phoenix::motorcontrol::TalonSRXControlMode::PercentOutput, left_wheel); //
-  m_MotorLeft.Set(ctre::phoenix::motorcontrol::TalonSRXControlMode::PercentOutput, right_wheel); // 
- 
+  m_MotorLeft.Set(ctre::phoenix::motorcontrol::TalonSRXControlMode::PercentOutput, right_wheel); //
 
-//m_robotDrive.ArcadeDrive(-m_joystick.GetY(), m_joystick.GetX());
-//double driveSpeed;
-//double driveTurn;
-
-
-//m_robotDrive.ArcadeDrive(0.5, 0.5, 0.0);
-//driveSpeed = 0.2;
-//driveTurn = 0.2;
-
-/*if(m_joystick.GetY()> 0.5){
-   setDriveMotors(driveSpeed, driveTurn);
-
- }else if(m_joystick.GetY() < -0.5){
-  setDriveMotors(-driveSpeed, driveTurn);
- }
- else{
-  setDriveMotors(0.0, 0.0);
+double ArmPower;
+if (m_XboxController.GetRightBumper()==true) {
+  ArmPower = -0.1;
 }
-
-if(m_joystick.GetZ()> 0.5){
-   setDriveMotors(0.0, driveTurn);
-
- }else if(m_joystick.GetZ() < -0.5){
-  setDriveMotors(0.0, -driveTurn);
- }
- else{
-  setDriveMotors(0.0, 0.0);
-}*/
-
-
-  
-  /*double forward = utils::Deadband(m_Forward());
-  double turn = utils::Deadband(m_Turn());
-  double slide = std::abs(m_Slide());
-  forward = slide;
-  turn= 0.5;
-
-
-  setDriveMotors(forward, turn);*/
-  
-
-/*if (m_joystick.GetRawButton(1)) {
-    std::cout << "drivespeed non nulle" << std::endl;
-    driveSpeed = 0.5;
-
-  }
- else{
-    driveSpeed = 0.0;
- }
-
-  setDriveMotors(driveSpeed,0.0);*/
-
-
-
+else if (m_XboxController.GetLeftBumper()==true){
+  ArmPower = 0.1;
+}
+else {
+  ArmPower = 0.0;
+}
+setArmMotor(ArmPower);
 }
 
 #ifndef RUNNING_FRC_TESTS
