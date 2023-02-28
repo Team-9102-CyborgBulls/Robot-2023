@@ -3,7 +3,6 @@
 // the WPILib BSD license file in the root directory of this project.
 
 #pragma once
-
 #include <cstdio>
 #include <span>
 #include <sstream>
@@ -23,10 +22,8 @@
 #include <units/length.h>
 #include <cameraserver/CameraServer.h>
 #include <fmt/format.h>
-
 #include <frc/Joystick.h>
 #include "Constants.h"
-
 #include <ctre/phoenix/motorcontrol/can/TalonSRX.h>
 #include <frc/smartdashboard/SendableChooser.h>
 #include <frc/drive/DifferentialDrive.h>
@@ -41,7 +38,7 @@
 
 class Robot : public frc::TimedRobot
 {
-  //#if defined(__linux__) || defined(_WIN32)
+  #if defined(_WIN32)
  
 public:
   void setDriveMotors(double forward, double turn);
@@ -54,20 +51,25 @@ public:
   void setArmMotor(double percent){
     m_ArmMotor.Set(percent);
   }
+  void setIntakeRotor(double percent, int amps) {
+    m_IntakeRotor.Set(percent);
+    m_IntakeRotor.SetSmartCurrentLimit(amps);
+  }
+
 
   
 private:
  double m_count;
  frc::Joystick m_joystick{0};
- frc::XboxController m_XboxController{0};
+ frc::XboxController m_XboxController{1};
  frc::Timer m_timer;
  frc::SendableChooser<std::string> m_chooser;
- //frc2::CommandScheduler::CommandScheduler 
+ 
   const std::string kAutoNameDefault = "Default";
   const std::string kAutoNameCustom = "My Auto";
   std::string m_autoSelected;
-  rev::CANSparkMax m_ArmMotor{6, rev::CANSparkMax::MotorType::kBrushed};
-  rev::CANSparkMax m_RotationIntake{7, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax m_ArmMotor{CAN_ID_ARM_MOTOR, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax m_IntakeRotor{CAN_ID_INTAKE_ROTOR, rev::CANSparkMax::MotorType::kBrushed};
   ctre::phoenix::motorcontrol::can::TalonSRX m_MotorRight{CAN_ID_DRIVETRAIN_MOTOR_RIGHT};
   ctre::phoenix::motorcontrol::can::TalonSRX m_MotorRightFollow{CAN_ID_DRIVETRAIN_MOTOR_RIGHT_FOLLOW};
   ctre::phoenix::motorcontrol::can::TalonSRX m_MotorLeft{CAN_ID_DRIVETRAIN_MOTOR_LEFT};
@@ -83,6 +85,7 @@ frc::Encoder encoder{0, 1};
 // Creates a PIDController with gains kP, kI, and kD
 //frc2::PIDController pid(kP, kI, kD);
 //void frc2::PIDController::SetPID(double kP, double kI, double kD);	
+
 
 
 };
