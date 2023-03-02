@@ -36,10 +36,10 @@
 
 
 
-class Robot : public frc::TimedRobot
-{
+class Robot : public frc::TimedRobot 
+
   #if defined(_WIN32)
- 
+{
 public:
   void setDriveMotors(double forward, double turn);
   void RobotInit() override;
@@ -48,10 +48,12 @@ public:
   void TeleopPeriodic() override;
   void AutonomousInit() override;
   void AutonomousPeriodic() override;
-  void setArmMotor(double percent){
+  void setArmMotor(double percent)
+  {
     m_ArmMotor.Set(percent);
   }
-  void setIntakeRotor(double percent, int amps) {
+  void setIntakeRotor(double percent, int amps)
+  {
     m_IntakeRotor.Set(percent);
     m_IntakeRotor.SetSmartCurrentLimit(amps);
   }
@@ -65,19 +67,17 @@ private:
  frc::Timer m_timer;
  frc::SendableChooser<std::string> m_chooser;
  
-  const std::string kAutoNameDefault = "Default";
-  const std::string kAutoNameCustom = "My Auto";
-  std::string m_autoSelected;
-  rev::CANSparkMax m_ArmMotor{CAN_ID_ARM_MOTOR, rev::CANSparkMax::MotorType::kBrushless};
-  rev::CANSparkMax m_IntakeRotor{CAN_ID_INTAKE_ROTOR, rev::CANSparkMax::MotorType::kBrushed};
-  ctre::phoenix::motorcontrol::can::TalonSRX m_MotorRight{CAN_ID_DRIVETRAIN_MOTOR_RIGHT};
-  ctre::phoenix::motorcontrol::can::TalonSRX m_MotorRightFollow{CAN_ID_DRIVETRAIN_MOTOR_RIGHT_FOLLOW};
-  ctre::phoenix::motorcontrol::can::TalonSRX m_MotorLeft{CAN_ID_DRIVETRAIN_MOTOR_LEFT};
-  ctre::phoenix::motorcontrol::can::TalonSRX m_MotorLeftFollow{CAN_ID_DRIVETRAIN_MOTOR_LEFT_FOLLOW};
-  std::function<double()> m_Forward;
-  std::function<double()> m_Turn;
-  std::function<double()> m_Slide;
- 
+ const std::string kAutoNameDefault = "Default";
+ const std::string kAutoNameCustom = "My Auto";
+ std::string m_autoSelected;
+ rev::CANSparkMax m_ArmMotor{CAN_ID_ARM_MOTOR, rev::CANSparkMax::MotorType::kBrushless};
+ rev::CANSparkMax m_IntakeRotor{CAN_ID_INTAKE_ROTOR, rev::CANSparkMax::MotorType::kBrushed};
+ ctre::phoenix::motorcontrol::can::TalonSRX m_MotorRight{CAN_ID_DRIVETRAIN_MOTOR_RIGHT};ctre::phoenix::motorcontrol::can::TalonSRX m_MotorRightFollow{CAN_ID_DRIVETRAIN_MOTOR_RIGHT_FOLLOW};
+ ctre::phoenix::motorcontrol::can::TalonSRX m_MotorLeft{CAN_ID_DRIVETRAIN_MOTOR_LEFT};
+ ctre::phoenix::motorcontrol::can::TalonSRX m_MotorLeftFollow{CAN_ID_DRIVETRAIN_MOTOR_LEFT_FOLLOW};std::function<double()> m_Forward;
+ std::function<double()> m_Turn;
+ std::function<double()> m_Slide;
+
 // Initializes an encoder on DIO pins 0 and 1
 // Defaults to 4X decoding and non-inverted
 frc::Encoder encoder{0, 1};
@@ -85,8 +85,6 @@ frc::Encoder encoder{0, 1};
 // Creates a PIDController with gains kP, kI, and kD
 //frc2::PIDController pid(kP, kI, kD);
 //void frc2::PIDController::SetPID(double kP, double kI, double kD);	
-
-
 
 };
    
