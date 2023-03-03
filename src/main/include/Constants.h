@@ -42,13 +42,3 @@
 #define NABS(a) (((a) < 0) ? -(a) : (a))     // VALEUR ABSOLUE
 #define NMAX(a, b) (((a) > (b)) ? (a) : (b)) // Max
 #define NMIN(a, b) (((a) < (b)) ? (a) : (b)) // Min
-
-
-// ################## PID Constante ##################
-
-//#define kP = (0.0)
-//#define kI = (0.0)
-//#define kD = (0.0)
-
-// Celui qui ose toucher ces valeurs je lui casse les genoux :) 
-//(C'est pas une blague le robot peut se péter)

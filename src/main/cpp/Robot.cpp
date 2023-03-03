@@ -8,8 +8,11 @@
 #include <string>
 #include <thread>
 #include <frc/TimedRobot.h>
+
+
 #include <networktables/IntegerArrayTopic.h>
 #include <networktables/NetworkTableInstance.h>
+
 #include <cameraserver/CameraServer.h>
 #include <fmt/format.h>
 #include "Constants.h"
@@ -27,7 +30,10 @@
 #include <frc/controller/PIDController.h>
 #include <frc/Encoder.h>
 #include <frc/XboxController.h>
-#include <math.h>
+#include <frc/Compressor.h>
+#include <frc/DoubleSolenoid.h>
+
+
 
 
 void Robot::RobotInit() {
@@ -51,22 +57,30 @@ void Robot::RobotInit() {
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
 
   // Get the USB camera from CameraServer
-  cs::UsbCamera camera = frc::CameraServer::StartAutomaticCapture();
-  // Set the resolution
-  camera.SetResolution(320, 240);
-  camera.SetFPS(120);
-  
-  // Resets the encoder to read a distance of zero
-  encoder.Reset();
+    cs::UsbCamera camera = frc::CameraServer::StartAutomaticCapture();
+    // Set the resolution
+    camera.SetResolution(640/2, 480/2);
+    camera.SetFPS(120);
 
-  encoder.SetDistancePerPulse(1.0/256.0);
-  encoder.GetDistance();
-  // Gets whether the encoder is stopped
-  encoder.GetStopped();
-  // Gets the last direction in which the encoder moved
-  encoder.GetDirection();
-  // Gets the current period of the encoder
-  encoder.GetPeriod();
+   
+  
+   // Resets the encoder to read a distance of zero
+   /*encoder.Reset();
+
+   encoder.SetDistancePerPulse(1.0/256.0);
+   encoder.GetDistance();
+   // Gets whether the encoder is stopped
+   encoder.GetStopped();
+   // Gets the last direction in which the encoder moved
+   encoder.GetDirection();
+   // Gets the current period of the encoder
+   encoder.GetPeriod();*/
+
+   //void frc2::PIDController::SetP(0);
+   //void frc2::PIDController::SetI(0);
+   //void frc2::PIDController::SetD(0);	
+   //void frc2::PIDController::SetPID (0, 0, 0);
+
 }
 
 void Robot::RobotPeriodic()
@@ -81,6 +95,7 @@ void Robot::setDriveMotors(double forward, double turn){
   m_MotorRight.Set(ctre::phoenix::motorcontrol::TalonSRXControlMode::PercentOutput, right);
   m_MotorLeft.Set(ctre::phoenix::motorcontrol::TalonSRXControlMode::PercentOutput, left);
 }
+
 
 void Robot::AutonomousInit() {
   
@@ -138,11 +153,10 @@ void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
 
- //double setpoint
- //setpoint = pid.GetSetpoint();
- // Calculates the output of the PID algorithm based on the sensor reading
- // and sends it to a motor
- //m_ArmMotor.Set(pid.Calculate(encoder.GetDistance(), setpoint));
+//double setpoint = pid.GetSetpoint();
+// Calculates the output of the PID algorithm based on the sensor reading
+// and sends it to a motor
+//m_ArmMotor.Set(pid.Calculate(encoder.GetDistance(), setpoint));
 
   //double y = -m_joystick.GetY();
   //double z = m_joystick.GetZ();
@@ -164,29 +178,39 @@ void Robot::TeleopPeriodic() {
   m_MotorRight.Set(ctre::phoenix::motorcontrol::TalonSRXControlMode::PercentOutput, left_wheel); //
   m_MotorLeft.Set(ctre::phoenix::motorcontrol::TalonSRXControlMode::PercentOutput, right_wheel); //
 
- double ArmPower;
- if (m_joystick.GetRawButton(5)==true) {
+double ArmPower;
+if (m_joystick.GetRawButton(5)==true) {
   ArmPower = -0.1;
- }
- else if (m_joystick.GetRawButton(6)==true){
-  ArmPower = 0.1;
- }
- else {
-  ArmPower = -0.01;
- }
- setArmMotor(ArmPower);
-
-
- double IntakeRotorPower;
-
- if(m_joystick.GetRawButton(8)==true){
-  IntakeRotorPower = 0.3;
- } else if(m_joystick.GetRawButton(7)==true){
-  IntakeRotorPower = -0.3;
- }
- setIntakeRotor(IntakeRotorPower, 40);
 }
+else if (m_joystick.GetRawButton(6)==true){
+  ArmPower = 0.1;
+}
+else {
+  ArmPower = -0.02;
+}
+setArmMotor(ArmPower);
 
+double IntakeRotorPower;
+
+if(m_joystick.GetRawButton(8)==true){
+ IntakeRotorPower = -0.3;
+} else if(m_joystick.GetRawButton(7)==true){
+ IntakeRotorPower = 0.3;
+}else{
+  IntakeRotorPower = 0.0;
+}
+setIntakeRotor(IntakeRotorPower, 40);
+
+if(m_joystick.GetRawButton(4)==true){
+DoublePH.Set(frc::DoubleSolenoid::Value::kForward);
+}else if(m_joystick.GetRawButton(5)==true){
+
+DoublePH.Set(frc::DoubleSolenoid::Value::kReverse);
+
+}else{
+DoublePH.Set(frc::DoubleSolenoid::Value::kOff);
+}
+}
 
 
 #ifndef RUNNING_FRC_TESTS
