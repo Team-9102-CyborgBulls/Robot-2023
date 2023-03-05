@@ -70,6 +70,7 @@ private:
  //frc2::CommandScheduler::CommandScheduler 
   const std::string kAutoNameDefault = "Default";
   const std::string kAutoNameCustom = "My Auto";
+  const std::string kAutoNameTest = "test5m";
   std::string m_autoSelected;
   rev::CANSparkMax m_ArmMotor{CAN_ID_ARM_MOTOR, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax m_IntakeRotor{CAN_ID_INTAKE_ROTOR, rev::CANSparkMax::MotorType::kBrushed};
@@ -81,10 +82,10 @@ private:
   std::function<double()> m_Turn;
   std::function<double()> m_Slide;
 
- frc::Compressor phCompressor{0, frc::PneumaticsModuleType::REVPH};
- frc::DoubleSolenoid DoublePH{1, frc::PneumaticsModuleType::REVPH, 8, 9};	
- bool enabled = phCompressor.Enabled();
- bool pressureSwitch = phCompressor.GetPressureSwitchValue();
+// frc::Compressor phCompressor{0, frc::PneumaticsModuleType::REVPH};
+// frc::DoubleSolenoid DoublePH{1, frc::PneumaticsModuleType::REVPH, 8, 9};	
+// bool enabled = phCompressor.Enabled();
+// bool pressureSwitch = phCompressor.GetPressureSwitchValue();
 
  
 // Initializes an encoder on DIO pins 0 and 1

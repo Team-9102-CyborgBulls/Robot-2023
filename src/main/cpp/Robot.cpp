@@ -54,6 +54,7 @@ void Robot::RobotInit() {
   //m_IntakeRotor.GetVoltageCompensationNominalVoltage(VOLTAGE_COMPENSATION_ARM_MOTOR);
   m_chooser.SetDefaultOption(kAutoNameDefault, kAutoNameDefault);
   m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
+  m_chooser.AddOption(kAutoNameTest, kAutoNameTest);
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
 
   // Get the USB camera from CameraServer
@@ -108,13 +109,22 @@ void Robot::AutonomousInit() {
     m_count=0;
     m_timer.Reset();
     m_timer.Start();
-  } else {
+  } 
+  if (m_autoSelected == kAutoNameTest) {
+    setDriveMotors(0.0, 0.0);
+    m_count=0;
+    m_timer.Reset();
+    m_timer.Start();
+  }
+
+  else {
     // Default Auto goes here
     setDriveMotors(0.0, 0.0);
     m_count=0;
     m_timer.Reset();
     m_timer.Start();
   }
+ 
 }
 
 
@@ -132,6 +142,20 @@ void Robot::AutonomousPeriodic() {
     //setDriveMotors(0.0, -0.3);
     //m_count++;
    //}  
+   else {
+    setDriveMotors(0.0, 0.0);
+   }
+  
+  }if (m_autoSelected == kAutoNameTest){
+    // Custom Auto goes here
+   if  (m_timer.Get() < 2.1_s) {
+ 
+    setDriveMotors(0.4, 0.0);
+    m_count++;
+   } 
+   else if (m_timer.Get() > 2.1_s && m_timer.Get() < 2.15_s){
+        setDriveMotors(0.0, -0.1);
+   }
    else {
     setDriveMotors(0.0, 0.0);
    }
@@ -201,7 +225,7 @@ if(m_joystick.GetRawButton(8)==true){
 }
 setIntakeRotor(IntakeRotorPower, 40);
 
-if(m_joystick.GetRawButton(4)==true){
+/*if(m_joystick.GetRawButton(4)==true){
 DoublePH.Set(frc::DoubleSolenoid::Value::kForward);
 }else if(m_joystick.GetRawButton(5)==true){
 
@@ -209,7 +233,7 @@ DoublePH.Set(frc::DoubleSolenoid::Value::kReverse);
 
 }else{
 DoublePH.Set(frc::DoubleSolenoid::Value::kOff);
-}
+}*/
 }
 
 
