@@ -8,8 +8,10 @@
 #include <string>
 #include <thread>
 #include <frc/TimedRobot.h>
-
-
+#include <opencv2/core/core.hpp>
+#include <opencv2/core/types.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include "cscore_oo.h"
 #include <networktables/IntegerArrayTopic.h>
 #include <networktables/NetworkTableInstance.h>
 
@@ -31,7 +33,12 @@
 #include <frc/XboxController.h>
 #include <frc/Compressor.h>
 #include <frc/DoubleSolenoid.h>
-#include <rev/SparkMaxAbsoluteEncoder.h> 
+#include <frc/Encoder.h>
+#include <rev/SparkMaxAbsoluteEncoder.h>
+#include <units/pressure.h>
+
+
+
 
 
 
@@ -50,20 +57,22 @@ void Robot::RobotInit() {
   m_MotorRightFollow.ConfigVoltageCompSaturation(VOLTAGE_COMPENSATION_DRIVETRAIN_MOTOR);
   m_MotorLeft.ConfigVoltageCompSaturation(VOLTAGE_COMPENSATION_DRIVETRAIN_MOTOR);
   m_MotorLeftFollow.ConfigVoltageCompSaturation(VOLTAGE_COMPENSATION_DRIVETRAIN_MOTOR);
- // m_ArmMotor.GetVoltageCompensationNominalVoltage(VOLTAGE_COMPENSATION_ARM_MOTOR);
-  //m_IntakeRotor.GetVoltageCompensationNominalVoltage(VOLTAGE_COMPENSATION_ARM_MOTOR);
+  m_ArmMotor.EnableVoltageCompensation(VOLTAGE_COMPENSATION_ARM_MOTOR);
+  m_IntakeRotor.EnableVoltageCompensation(VOLTAGE_COMPENSATION_ARM_MOTOR);
   m_chooser.SetDefaultOption(kAutoNameDefault, kAutoNameDefault);
   m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
+  //rev::CANSparkMax::GetAbsoluteEncoder(rev::SparkMaxAbsoluteEncoder::SparkMaxAbsoluteEncoder)
 
   // Get the USB camera from CameraServer
-    cs::UsbCamera camera = frc::CameraServer::StartAutomaticCapture();
-    // Set the resolution
-    camera.SetResolution(640/2, 480/2);
-    camera.SetFPS(120);
-
     
+    //cs::UsbCamera camera = frc::CameraServer::StartAutomaticCapture(); 
+    // Set the resolution
+    //camera.SetResolution(640/2, 480/2);
+    //camera.SetFPS(120);
 
+   enabled = true;
+   
     m_pidController.SetP(kP);
     m_pidController.SetI(kI);
     m_pidController.SetD(kD);
@@ -76,7 +85,7 @@ void Robot::RobotInit() {
    /*encoder.Reset();
 
    encoder.SetDistancePerPulse(1.0/256.0);
-   encoder.GetDistance();
+   
    // Gets whether the encoder is stopped
    encoder.GetStopped();
    // Gets the last direction in which the encoder moved
@@ -113,13 +122,13 @@ void Robot::AutonomousInit() {
  if (m_autoSelected == kAutoNameCustom) {
     // Custom Auto goes here
     setDriveMotors(0.0, 0.0);
-    m_count=0;
+    
     m_timer.Reset();
     m_timer.Start();
   } else {
     // Default Auto goes here
     setDriveMotors(0.0, 0.0);
-    m_count=0;
+    
     m_timer.Reset();
     m_timer.Start();
   }
@@ -169,8 +178,8 @@ void Robot::TeleopPeriodic() {
   double p = frc::SmartDashboard::GetNumber("P Gain", 0);
   double i = frc::SmartDashboard::GetNumber("I Gain", 0);
   double d = frc::SmartDashboard::GetNumber("D Gain", 0);
-  frc::SmartDashboard::PutNumber("Encoder Position", m_encoder().GetPosition());
-  frc::SmartDashboard::PutNumber("Encoder Velocity", m_encoder().GetVelocity());
+  //frc::SmartDashboard::PutNumber("Encoder Position", m_encoder().GetPosition());
+  //frc::SmartDashboard::PutNumber("Encoder Velocity", m_encoder().GetVelocity());
 
   if((p != kP)) { m_pidController.SetP(p); kP = p; }
   if((i != kI)) { m_pidController.SetI(i); kI = i; }
@@ -207,7 +216,7 @@ else if (m_joystick.GetRawButton(6)==true){
 else {
   ArmPower = -0.02;
 }
-setArmMotor(ArmPower);
+setArmMotor(ArmPower, 40);
 
 double IntakeRotorPower;
 
@@ -222,7 +231,7 @@ setIntakeRotor(IntakeRotorPower, 40);
 
 if(m_joystick.GetRawButton(4)==true){
  DoublePH.Set(frc::DoubleSolenoid::Value::kForward);
-} else if(m_joystick.GetRawButton(5)==true){
+} else if(m_joystick.GetRawButton(3)==true){
 
 DoublePH.Set(frc::DoubleSolenoid::Value::kReverse);
 

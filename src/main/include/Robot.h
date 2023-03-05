@@ -15,9 +15,7 @@
 #include <frc/geometry/Transform3d.h>
 #include <networktables/IntegerArrayTopic.h>
 #include <networktables/NetworkTableInstance.h>
-#include <opencv2/core/core.hpp>
-#include <opencv2/core/types.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+
 #include <units/angle.h>
 #include <units/length.h>
 #include <cameraserver/CameraServer.h>
@@ -37,6 +35,9 @@
 #include <iostream>
 #include <rev/SparkMaxAbsoluteEncoder.h>
 #include <math.h>
+#include <frc/Encoder.h>
+#include <units/pressure.h>
+
 
 
 class Robot : public frc::TimedRobot 
@@ -50,7 +51,7 @@ public:
   void TeleopPeriodic() override;
   void AutonomousInit() override;
   void AutonomousPeriodic() override;
-  void setArmMotor(double percent){
+  void setArmMotor(double percent, int amps){
     m_ArmMotor.Set(percent);
      m_ArmMotor.SetSmartCurrentLimit(amps);
   }
@@ -58,9 +59,6 @@ public:
     m_IntakeRotor.Set(percent);
     m_IntakeRotor.SetSmartCurrentLimit(amps);
   }
- //double Kp;
- //double Ki;
- //double Kd;
 
   
 private:
