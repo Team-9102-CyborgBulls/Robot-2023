@@ -36,9 +36,8 @@
 #include <frc/Encoder.h>
 #include <rev/SparkMaxAbsoluteEncoder.h>
 #include <units/pressure.h>
-
-
-
+#include <frc/DutyCycleEncoder.h>
+#include <frc/PneumaticsControlModule.h>
 
 
 
@@ -71,7 +70,7 @@ void Robot::RobotInit() {
     //camera.SetResolution(640/2, 480/2);
     //camera.SetFPS(120);
 
-   enabled = true;
+   
    
     m_pidController.SetP(kP);
     m_pidController.SetI(kI);
@@ -81,6 +80,12 @@ void Robot::RobotInit() {
     frc::SmartDashboard::PutNumber("I Gain", kI);
     frc::SmartDashboard::PutNumber("D Gain", kD);
 
+   // Configures the encoder to return a distance of 4 for every rotation
+   encoder.SetDistancePerRotation(4.0);
+   
+   // set the position offset to half a rotation
+   encoder.SetPositionOffset(0.5);
+   
    // Resets the encoder to read a distance of zero
    /*encoder.Reset();
 
@@ -170,6 +175,7 @@ void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
 
+enabled = true;
 //double setpoint = pid.GetSetpoint();
 // Calculates the output of the PID algorithm based on the sensor reading
 // and sends it to a motor
@@ -178,7 +184,7 @@ void Robot::TeleopPeriodic() {
   double p = frc::SmartDashboard::GetNumber("P Gain", 0);
   double i = frc::SmartDashboard::GetNumber("I Gain", 0);
   double d = frc::SmartDashboard::GetNumber("D Gain", 0);
-  //frc::SmartDashboard::PutNumber("Encoder Position", m_encoder().GetPosition());
+  frc::SmartDashboard::PutNumber("Encoder Position", encoder.GetDistance());
   //frc::SmartDashboard::PutNumber("Encoder Velocity", m_encoder().GetVelocity());
 
   if((p != kP)) { m_pidController.SetP(p); kP = p; }
@@ -208,10 +214,10 @@ void Robot::TeleopPeriodic() {
 
 double ArmPower;
 if (m_joystick.GetRawButton(5)==true) {
-  ArmPower = -0.54;
+  ArmPower = -0.2;
 }
 else if (m_joystick.GetRawButton(6)==true){
-  ArmPower = 0.54;
+  ArmPower = 0.2;
 }
 else {
   ArmPower = -0.02;

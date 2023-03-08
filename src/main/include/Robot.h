@@ -37,7 +37,8 @@
 #include <math.h>
 #include <frc/Encoder.h>
 #include <units/pressure.h>
-
+#include <frc/DutyCycleEncoder.h>
+#include <frc/PneumaticsControlModule.h>
 
 
 class Robot : public frc::TimedRobot 
@@ -53,7 +54,7 @@ public:
   void AutonomousPeriodic() override;
   void setArmMotor(double percent, int amps){
     m_ArmMotor.Set(percent);
-     m_ArmMotor.SetSmartCurrentLimit(amps);
+    m_ArmMotor.SetSmartCurrentLimit(amps);
   }
   void setIntakeRotor(double percent, int amps) {
     m_IntakeRotor.Set(percent);
@@ -80,17 +81,22 @@ private:
   std::function<double()> m_Forward;
   std::function<double()> m_Turn;
   std::function<double()> m_Slide;
-  rev::SparkMaxAbsoluteEncoder m_encoder();
+  //rev::SparkMaxAbsoluteEncoder m_encoder();
+  
+ 
 
- frc::Compressor phCompressor{0, frc::PneumaticsModuleType::REVPH};
- frc::DoubleSolenoid DoublePH{1, frc::PneumaticsModuleType::REVPH, 8, 9};	
+ frc::Compressor phCompressor{10, frc::PneumaticsModuleType::REVPH};
+ frc::DoubleSolenoid DoublePH{10, frc::PneumaticsModuleType::REVPH, 1, 2};	
  bool enabled = phCompressor.Enabled();
- bool pressureSwitch = phCompressor.GetPressureSwitchValue();
+ 
 
  
 // Initializes an encoder on DIO pins 0 and 1
 // Defaults to 4X decoding and non-inverted
 //frc::Encoder encoder{0, 1};
+
+// Initializes a duty cycle encoder on DIO pins 0
+frc::DutyCycleEncoder encoder{0};
 
 // Creates a PIDController with gains kP, kI, and kD
 
