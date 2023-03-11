@@ -40,6 +40,8 @@
 #include <frc/PneumaticsControlModule.h>
 
 
+#include <frc/AnalogInput.h>
+#include <frc/Ultrasonic.h>
 
 
 void Robot::RobotInit() {
@@ -69,6 +71,8 @@ void Robot::RobotInit() {
     // Set the resolution
     //camera.SetResolution(640/2, 480/2);
     //camera.SetFPS(120);
+    
+
 
    
    
@@ -107,7 +111,10 @@ void Robot::RobotInit() {
 
 void Robot::RobotPeriodic()
 {
-  frc2::CommandScheduler::GetInstance().Run();
+  double rawValue = m_ultrasonic.GetValue();
+  double voltValue = rawValue * 5.0 / 4095;
+  frc::SmartDashboard::PutNumber("ultrason_rawvalue",rawValue);
+  frc::SmartDashboard::PutNumber("distance in meters",voltValue);
 }
 
 void Robot::setDriveMotors(double forward, double turn){

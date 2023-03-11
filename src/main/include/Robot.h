@@ -39,8 +39,11 @@
 #include <units/pressure.h>
 #include <frc/DutyCycleEncoder.h>
 #include <frc/PneumaticsControlModule.h>
+#include <frc/AnalogInput.h>
 
 
+#include <frc/AnalogInput.h>
+#include <frc/Ultrasonic.h>
 class Robot : public frc::TimedRobot 
 
 {
@@ -69,6 +72,12 @@ private:
  frc::Timer m_timer;
  frc::SendableChooser<std::string> m_chooser;
  //frc2::CommandScheduler::CommandScheduler 
+  
+  
+  frc::AnalogInput m_ultrasonic{0};
+
+
+  
   const std::string kAutoNameDefault = "Default";
   const std::string kAutoNameCustom = "My Auto"; 
   std::string m_autoSelected;
