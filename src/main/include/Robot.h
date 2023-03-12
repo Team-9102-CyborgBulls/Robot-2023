@@ -81,7 +81,7 @@ private:
   std::function<double()> m_Forward;
   std::function<double()> m_Turn;
   std::function<double()> m_Slide;
-  //rev::SparkMaxAbsoluteEncoder m_encoder();
+
   
  
 
@@ -96,13 +96,15 @@ private:
 //frc::Encoder encoder{0, 1};
 
 // Initializes a duty cycle encoder on DIO pins 0
-frc::DutyCycleEncoder encoder{0};
+//frc::DutyCycleEncoder encoder{0};
 
 // Creates a PIDController with gains kP, kI, and kD
+//rev::SparkMaxAbsoluteEncoder m_encoder = m_ArmMotor.GetEncoder(); 
+rev::SparkMaxRelativeEncoder m_encoder = m_ArmMotor.GetEncoder();
 
 rev::SparkMaxPIDController m_pidController = m_ArmMotor.GetPIDController();
 
-double kP = 0, kI = 0, kD = 0;
+double kP = 0.001, kI = 0, kD = 0, kFF=0.675, kMaxOutput = 1, kMinOutput = -1, rota = 3;
 
 
 

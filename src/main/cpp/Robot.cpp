@@ -38,8 +38,12 @@
 #include <units/pressure.h>
 #include <frc/DutyCycleEncoder.h>
 #include <frc/PneumaticsControlModule.h>
-
-
+#include <string_view>
+#include "frc/shuffleboard/RecordingController.h"
+#include "frc/shuffleboard/ShuffleboardEventImportance.h"
+#include "frc/shuffleboard/ShuffleboardInstance.h"
+#include "frc/shuffleboard/ShuffleboardTab.h"
+#include <frc/shuffleboard/Shuffleboard.h>
 
 
 void Robot::RobotInit() {
@@ -75,16 +79,19 @@ void Robot::RobotInit() {
     m_pidController.SetP(kP);
     m_pidController.SetI(kI);
     m_pidController.SetD(kD);
-  
+    m_pidController.SetFF(kFF);
+    m_pidController.SetReference(rota, rev::CANSparkMax::ControlType::kPosition);
     frc::SmartDashboard::PutNumber("P Gain", kP);
     frc::SmartDashboard::PutNumber("I Gain", kI);
     frc::SmartDashboard::PutNumber("D Gain", kD);
-
+    frc::SmartDashboard::PutNumber("FF Gain", kFF);
+    frc::SmartDashboard::PutNumber("Max Outpout", kMaxOutput);
+    frc::SmartDashboard::PutNumber("Min Outpout", kMinOutput);
    // Configures the encoder to return a distance of 4 for every rotation
-   encoder.SetDistancePerRotation(4.0);
+   //m_encoder.SetDistancePerRotation(1.0);
    
    // set the position offset to half a rotation
-   encoder.SetPositionOffset(0.5);
+   //m_encoder.SetPosition(0.5);
    
    // Resets the encoder to read a distance of zero
    /*encoder.Reset();
@@ -107,7 +114,7 @@ void Robot::RobotInit() {
 
 void Robot::RobotPeriodic()
 {
-  frc2::CommandScheduler::GetInstance().Run();
+  frc2::CommandScheduler::GetInstance().Run(); 
 }
 
 void Robot::setDriveMotors(double forward, double turn){
@@ -180,19 +187,36 @@ enabled = true;
 // Calculates the output of the PID algorithm based on the sensor reading
 // and sends it to a motor
 //m_ArmMotor.Set(pid.Calculate(encoder.GetDistance(), setpoint));
-
+  /*frc::Shuffleboard::GetTab("Drive")
+ .Add("Max Speed", 1)
+ .WithWidget(frc::BuiltInWidgets::kNumberSlider) // specify the widget here
+ .GetEntry();*/
+  
+  double rotations = frc::SmartDashboard::GetNumber("Set Rotations", 0);
   double p = frc::SmartDashboard::GetNumber("P Gain", 0);
   double i = frc::SmartDashboard::GetNumber("I Gain", 0);
   double d = frc::SmartDashboard::GetNumber("D Gain", 0);
-  frc::SmartDashboard::PutNumber("Encoder Position", encoder.GetDistance());
-  //frc::SmartDashboard::PutNumber("Encoder Velocity", m_encoder().GetVelocity());
+  double ff = frc::SmartDashboard::GetNumber("FF Gain", 0);
+  double max = frc::SmartDashboard::GetNumber("Max Output", 0);
+  double min = frc::SmartDashboard::GetNumber("Min Output", 0);
 
+
+  //frc::SmartDashboard::PutNumber("Encoder Position", m_encoder.GetDistance());
+  //frc::SmartDashboard::PutNumber("Encoder Velocity", m_encoder().GetVelocity());
+  
   if((p != kP)) { m_pidController.SetP(p); kP = p; }
   if((i != kI)) { m_pidController.SetI(i); kI = i; }
+  if((ff != kFF)) { m_pidController.SetFF(ff); kFF = ff; }
   if((d != kD)) { m_pidController.SetD(d); kD = d; }
+  if((max != kMaxOutput)) { 
+    m_pidController.SetOutputRange(min, max);
+    kMinOutput = min; kMaxOutput = max;
+  }
 
-  //m_pidController.SetReference(rotations, rev::CANSparkMax::ControlType::kPosition);
-  //frc::SmartDashboard::PutNumber("SetPoint", rotations);
+  m_pidController.SetReference(rotations, rev::CANSparkMax::ControlType::kPosition);
+  frc::SmartDashboard::PutNumber("SetPoint", rotations);
+  frc::SmartDashboard::PutNumber("ProcessVariable",m_encoder.GetPosition());
+
 
   double y = -m_joystick.GetY();
   double z = m_joystick.GetZ();
@@ -220,7 +244,7 @@ else if (m_joystick.GetRawButton(6)==true){
   ArmPower = 0.2;
 }
 else {
-  ArmPower = -0.02;
+  ArmPower = 0;
 }
 setArmMotor(ArmPower, 40);
 
