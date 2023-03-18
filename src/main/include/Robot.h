@@ -63,8 +63,8 @@ public:
     m_IntakeRotor.Set(percent);
     m_IntakeRotor.SetSmartCurrentLimit(amps);
   }
-
   
+
 private:
  
  frc::Joystick m_joystick{0};
@@ -75,7 +75,7 @@ private:
   
   
   frc::AnalogInput m_ultrasonic{0};
-
+  
 
   
   const std::string kAutoNameDefault = "Default";
@@ -97,7 +97,10 @@ private:
  frc::Compressor phCompressor{10, frc::PneumaticsModuleType::REVPH};
  frc::DoubleSolenoid DoublePH{10, frc::PneumaticsModuleType::REVPH, 1, 2};	
  bool enabled = phCompressor.Enabled();
+
  
+ 
+ frc2::PIDController m_pidController3{-0.001,0.0,0.0};
 
  
 // Initializes an encoder on DIO pins 0 and 1
@@ -108,12 +111,15 @@ private:
 frc::DutyCycleEncoder encoder{0};
 
 // Creates a PIDController with gains kP, kI, and kD
-
+/*
 rev::SparkMaxPIDController m_pidController = m_ArmMotor.GetPIDController();
 
 double kP = 0, kI = 0, kD = 0;
 
+rev::SparkMaxPIDController m_pidController2 = m_rigthMotor.GetPIDController();
 
+double Kp = 0, Ki = 0, Kd = 0;
+*/
 
 /*double Kp;
 double Ki;

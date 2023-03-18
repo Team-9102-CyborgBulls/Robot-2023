@@ -42,6 +42,7 @@
 
 #include <frc/AnalogInput.h>
 #include <frc/Ultrasonic.h>
+#include <frc2/command/PIDSubsystem.h>
 
 
 void Robot::RobotInit() {
@@ -75,6 +76,7 @@ void Robot::RobotInit() {
 
 
    
+   /*
    
     m_pidController.SetP(kP);
     m_pidController.SetI(kI);
@@ -90,6 +92,7 @@ void Robot::RobotInit() {
    // set the position offset to half a rotation
    encoder.SetPositionOffset(0.5);
    
+   */
    // Resets the encoder to read a distance of zero
    /*encoder.Reset();
 
@@ -188,6 +191,7 @@ enabled = true;
 // and sends it to a motor
 //m_ArmMotor.Set(pid.Calculate(encoder.GetDistance(), setpoint));
 
+/*
   double p = frc::SmartDashboard::GetNumber("P Gain", 0);
   double i = frc::SmartDashboard::GetNumber("I Gain", 0);
   double d = frc::SmartDashboard::GetNumber("D Gain", 0);
@@ -198,6 +202,7 @@ enabled = true;
   if((i != kI)) { m_pidController.SetI(i); kI = i; }
   if((d != kD)) { m_pidController.SetD(d); kD = d; }
 
+*/
   //m_pidController.SetReference(rotations, rev::CANSparkMax::ControlType::kPosition);
   //frc::SmartDashboard::PutNumber("SetPoint", rotations);
 
@@ -251,6 +256,39 @@ DoublePH.Set(frc::DoubleSolenoid::Value::kReverse);
 }else{
 DoublePH.Set(frc::DoubleSolenoid::Value::kOff);
 }
+/*
+double Yc = 821;
+if(m_joystick.GetRawButton(9)==true){
+  if (m_ultrasonic.GetValue()>Yc){
+    setDriveMotors( x , 0.0);
+    
+  }
+  else{
+    setDriveMotors( -0.2 , 0.0);
+  }
+
+}
+*/
+double pidOutput;
+if(m_joystick.GetRawButton(9)==true){
+  double rawValue = m_ultrasonic.GetValue();
+  m_pidController3.SetSetpoint(871);
+  pidOutput = m_pidController3.Calculate(rawValue);
+  if(pidOutput > 0.2){
+      pidOutput = 0.2;
+  }
+  else if(pidOutput<-0.2 ){
+    pidOutput = -0.2;
+  }
+  std::cout<< "output" << pidOutput <<std::endl;
+  frc::SmartDashboard::PutNumber("output",pidOutput);
+  
+  
+}
+else{
+  pidOutput = 0;
+}
+setDriveMotors(pidOutput,0.0);
 }
 
 
