@@ -15,9 +15,7 @@
 #include <frc/geometry/Transform3d.h>
 #include <networktables/IntegerArrayTopic.h>
 #include <networktables/NetworkTableInstance.h>
-#include <opencv2/core/core.hpp>
-#include <opencv2/core/types.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+
 #include <units/angle.h>
 #include <units/length.h>
 #include <cameraserver/CameraServer.h>
@@ -38,8 +36,6 @@
 #include <iostream>
 #include <rev/SparkMaxAbsoluteEncoder.h>
 #include <math.h>
-#include <frc/AnalogInput.h>
-#include <frc/AnalogGyro.h>
 
 
 class Robot : public frc::TimedRobot 
@@ -53,16 +49,14 @@ public:
   void TeleopPeriodic() override;
   void AutonomousInit() override;
   void AutonomousPeriodic() override;
-  void setArmMotor(double percent){
+  void setArmMotor(double percent, int amps){
     m_ArmMotor.Set(percent);
+     m_ArmMotor.SetSmartCurrentLimit(amps);
   }
   void setIntakeRotor(double percent, int amps) {
     m_IntakeRotor.Set(percent);
     m_IntakeRotor.SetSmartCurrentLimit(amps);
   }
- //double Kp;
- //double Ki;
- //double Kd;
 
   
 private:
@@ -86,23 +80,28 @@ private:
   std::function<double()> m_Forward;
   std::function<double()> m_Turn;
   std::function<double()> m_Slide;
-  //rev::SparkMaxAbsoluteEncoder m_encoder();
+  rev::SparkMaxAbsoluteEncoder m_encoder();
 
-// frc::Compressor phCompressor{0, frc::PneumaticsModuleType::REVPH};
-// frc::DoubleSolenoid DoublePH{1, frc::PneumaticsModuleType::REVPH, 8, 9};	
-// bool enabled = phCompressor.Enabled();
-// bool pressureSwitch = phCompressor.GetPressureSwitchValue();
+ frc::Compressor phCompressor{0, frc::PneumaticsModuleType::REVPH};
+ frc::DoubleSolenoid DoublePH{1, frc::PneumaticsModuleType::REVPH, 8, 9};	
+ bool enabled = phCompressor.Enabled();
+ bool pressureSwitch = phCompressor.GetPressureSwitchValue();
 
  
 // Initializes an encoder on DIO pins 0 and 1
 // Defaults to 4X decoding and non-inverted
 //frc::Encoder encoder{0, 1};
 
+// Initializes a duty cycle encoder on DIO pins 0
+//frc::DutyCycleEncoder encoder{0};
+
 // Creates a PIDController with gains kP, kI, and kD
+//rev::SparkMaxAbsoluteEncoder m_encoder = m_ArmMotor.GetEncoder(); 
+rev::SparkMaxRelativeEncoder m_encoder = m_ArmMotor.GetEncoder();
 
 rev::SparkMaxPIDController m_pidController = m_ArmMotor.GetPIDController();
 
-double kP = 0, kI = 0, kD = 0;
+double kP = 0.001, kI = 0, kD = 0, kFF=0.675, kMaxOutput = 1, kMinOutput = -1, rota = 3;
 
 
 
