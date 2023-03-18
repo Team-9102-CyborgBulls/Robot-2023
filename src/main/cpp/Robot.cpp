@@ -8,8 +8,10 @@
 #include <string>
 #include <thread>
 #include <frc/TimedRobot.h>
-
-
+#include <opencv2/core/core.hpp>
+#include <opencv2/core/types.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include "cscore_oo.h"
 #include <networktables/IntegerArrayTopic.h>
 #include <networktables/NetworkTableInstance.h>
 
@@ -22,7 +24,6 @@
 #include <frc/Timer.h>
 #include <frc/shuffleboard/Shuffleboard.h>
 #include <frc/smartdashboard/SmartDashboard.h>
-#include <frc/shuffleboard/Shuffleboard.h>
 #include <frc/Joystick.h>
 #include <frc2/command/CommandScheduler.h>
 #include <iostream>
@@ -30,7 +31,6 @@
 #include <frc/motorcontrol/MotorControllerGroup.h>
 #include <frc/motorcontrol/Talon.h>
 #include <frc/controller/PIDController.h>
-#include <frc/Encoder.h>
 #include <frc/XboxController.h>
 #include <frc/Compressor.h>
 #include <frc/DoubleSolenoid.h>
@@ -39,6 +39,11 @@
 #include <units/pressure.h>
 #include <frc/DutyCycleEncoder.h>
 #include <frc/PneumaticsControlModule.h>
+
+#include <frc/AnalogInput.h>
+#include <frc/Ultrasonic.h>
+#include <frc2/command/PIDSubsystem.h>
+
 #include <string_view>
 #include "frc/shuffleboard/RecordingController.h"
 #include "frc/shuffleboard/ShuffleboardEventImportance.h"
@@ -47,12 +52,14 @@
 #include <frc/shuffleboard/Shuffleboard.h>
 
 
+
+
 void Robot::RobotInit() {
 
-  m_MotorRight.SetInverted(false);
-  m_MotorRightFollow.SetInverted(false);
-  m_MotorLeft.SetInverted(true);
-  m_MotorLeftFollow.SetInverted(true);
+  m_MotorRight.SetInverted(true);
+  m_MotorRightFollow.SetInverted(true);
+  m_MotorLeft.SetInverted(false);
+  m_MotorLeftFollow.SetInverted(false);
 
   m_MotorRightFollow.Follow(m_MotorRight);
   m_MotorLeftFollow.Follow(m_MotorLeft);
@@ -61,43 +68,40 @@ void Robot::RobotInit() {
   m_MotorRightFollow.ConfigVoltageCompSaturation(VOLTAGE_COMPENSATION_DRIVETRAIN_MOTOR);
   m_MotorLeft.ConfigVoltageCompSaturation(VOLTAGE_COMPENSATION_DRIVETRAIN_MOTOR);
   m_MotorLeftFollow.ConfigVoltageCompSaturation(VOLTAGE_COMPENSATION_DRIVETRAIN_MOTOR);
-  //m_ArmMotor.GetVoltageCompensationNominalVoltage(VOLTAGE_COMPENSATION_ARM_MOTOR);
-  //m_IntakeRotor.GetVoltageCompensationNominalVoltage(VOLTAGE_COMPENSATION_ARM_MOTOR);
+  m_ArmMotor.EnableVoltageCompensation(VOLTAGE_COMPENSATION_ARM_MOTOR);
+  m_IntakeRotor.EnableVoltageCompensation(VOLTAGE_COMPENSATION_ARM_MOTOR);
   m_chooser.SetDefaultOption(kAutoNameDefault, kAutoNameDefault);
   m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
   m_chooser.AddOption(kAutoNameTest, kAutoNameTest);
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
+  //rev::CANSparkMax::GetAbsoluteEncoder(rev::SparkMaxAbsoluteEncoder::SparkMaxAbsoluteEncoder)
 
   // Get the USB camera from CameraServer
-    cs::UsbCamera camera = frc::CameraServer::StartAutomaticCapture();
+    
+    //cs::UsbCamera camera = frc::CameraServer::StartAutomaticCapture(); 
     // Set the resolution
-    camera.SetResolution(640/2, 480/2);
-    camera.SetFPS(120);
+    //camera.SetResolution(640/2, 480/2);
+    //camera.SetFPS(120);
+    
+
 
    
-  
+   /*
+   
     m_pidController.SetP(kP);
     m_pidController.SetI(kI);
     m_pidController.SetD(kD);
-    m_pidController.SetFF(kFF);
-    m_pidController.SetReference(rota, rev::CANSparkMax::ControlType::kPosition);
+  
     frc::SmartDashboard::PutNumber("P Gain", kP);
     frc::SmartDashboard::PutNumber("I Gain", kI);
     frc::SmartDashboard::PutNumber("D Gain", kD);
     frc::SmartDashboard::PutNumber("FF Gain", kFF);
     frc::SmartDashboard::PutNumber("Max Outpout", kMaxOutput);
-    frc::SmartDashboard::PutNumber("Min Outpout", kMinOutput);
-   // Configures the encoder to return a distance of 4 for every rotation
-   //m_encoder.SetDistancePerRotation(1.0);
-   
-   // set the position offset to half a rotation
-   //m_encoder.SetPosition(0.5);
-   
-   // Resets the encoder to read a distance of zero
+    frc::SmartDashboard::PutNumber("Min Outpout", kMinOutput);   // Resets the encoder to read a distance of zero
    /*encoder.Reset();
 
    encoder.SetDistancePerPulse(1.0/256.0);
-   encoder.GetDistance();
+   
    // Gets whether the encoder is stopped
    encoder.GetStopped();
    // Gets the last direction in which the encoder moved
@@ -109,17 +113,17 @@ void Robot::RobotInit() {
    //void frc2::PIDController::SetI(0);
    //void frc2::PIDController::SetD(0);	
    //void frc2::PIDController::SetPID (0, 0, 0);
-  
 
-void Robot::RobotPeriodic(){
+}
+
+void Robot::RobotPeriodic()
+{
   double rawValue = m_ultrasonic.GetValue();
   double voltValue = rawValue * 5.0 / 4095;
   frc::SmartDashboard::PutNumber("ultrason_rawvalue",rawValue);
   frc::SmartDashboard::PutNumber("distance in meters",voltValue);
 
-void Robot::RobotPeriodic()
-{
-  frc2::CommandScheduler::GetInstance().Run(); 
+  frc2::CommandScheduler::GetInstance().Run();
 }
 
 void Robot::setDriveMotors(double forward, double turn){
@@ -206,36 +210,27 @@ void Robot::TeleopPeriodic() {
 
   
 
+enabled = true;
 //double setpoint = pid.GetSetpoint();
 // Calculates the output of the PID algorithm based on the sensor reading
 // and sends it to a motor
 //m_ArmMotor.Set(pid.Calculate(encoder.GetDistance(), setpoint));
 
-  //double y = -m_joystick.GetY();
-  //double z = m_joystick.GetZ();
- double rotations = frc::SmartDashboard::GetNumber("Set Rotations", 0);
+/*
   double p = frc::SmartDashboard::GetNumber("P Gain", 0);
   double i = frc::SmartDashboard::GetNumber("I Gain", 0);
   double d = frc::SmartDashboard::GetNumber("D Gain", 0);
   double ff = frc::SmartDashboard::GetNumber("FF Gain", 0);
   double max = frc::SmartDashboard::GetNumber("Max Output", 0);
   double min = frc::SmartDashboard::GetNumber("Min Output", 0);
-
-
-  //frc::SmartDashboard::PutNumber("Encoder Position", m_encoder.GetDistance());
-  //frc::SmartDashboard::PutNumber("Encoder Velocity", m_encoder().GetVelocity());
-  
   if((p != kP)) { m_pidController.SetP(p); kP = p; }
   if((i != kI)) { m_pidController.SetI(i); kI = i; }
-  if((ff != kFF)) { m_pidController.SetFF(ff); kFF = ff; }
   if((d != kD)) { m_pidController.SetD(d); kD = d; }
-  if((max != kMaxOutput)) { 
-    m_pidController.SetOutputRange(min, max);
-    kMinOutput = min; kMaxOutput = max;
-  }
-  m_pidController.SetReference(rotations, rev::CANSparkMax::ControlType::kPosition);
-  frc::SmartDashboard::PutNumber("SetPoint", rotations);
-  frc::SmartDashboard::PutNumber("ProcessVariable",m_encoder.GetPosition());
+
+*/
+  //m_pidController.SetReference(rotations, rev::CANSparkMax::ControlType::kPosition);
+  //frc::SmartDashboard::PutNumber("SetPoint", rotations);
+
   double y = -m_joystick.GetY();
   double z = m_joystick.GetZ();
   double forward = utils::Deadband(y);
@@ -256,10 +251,10 @@ void Robot::TeleopPeriodic() {
 
 double ArmPower;
 if (m_joystick.GetRawButton(5)==true) {
-  ArmPower = -0.1;
+  ArmPower = -0.2;
 }
 else if (m_joystick.GetRawButton(6)==true){
-  ArmPower = 0.1;
+  ArmPower = 0.2;
 }
 else {
   ArmPower = -0.02;
@@ -276,7 +271,7 @@ if(m_joystick.GetRawButton(8)==true){
   IntakeRotorPower = 0.0;
 }
 setIntakeRotor(IntakeRotorPower, 40);
-/*
+
 if(m_joystick.GetRawButton(4)==true){
  DoublePH.Set(frc::DoubleSolenoid::Value::kForward);
 } else if(m_joystick.GetRawButton(3)==true){
@@ -286,7 +281,28 @@ DoublePH.Set(frc::DoubleSolenoid::Value::kReverse);
 }else{
 DoublePH.Set(frc::DoubleSolenoid::Value::kOff);
 }
+double pidOutput;
+if(m_joystick.GetRawButton(9)==true){
+  double rawValue = m_ultrasonic.GetValue();
+  m_pidController3.SetSetpoint(871);
+  pidOutput = m_pidController3.Calculate(rawValue);
+  if(pidOutput > 0.2){
+      pidOutput = 0.2;
+  }
+  else if(pidOutput<-0.2 ){
+    pidOutput = -0.2;
+  }
+  std::cout<< "output" << pidOutput <<std::endl;
+  frc::SmartDashboard::PutNumber("output",pidOutput);
+  
+  
 }
+else{
+  pidOutput = 0;
+}
+setDriveMotors(pidOutput,0.0);
+}
+
 
 
 #ifndef RUNNING_FRC_TESTS
