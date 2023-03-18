@@ -15,7 +15,9 @@
 #include <frc/geometry/Transform3d.h>
 #include <networktables/IntegerArrayTopic.h>
 #include <networktables/NetworkTableInstance.h>
-
+#include <opencv2/core/core.hpp>
+#include <opencv2/core/types.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <units/angle.h>
 #include <units/length.h>
 #include <cameraserver/CameraServer.h>
@@ -44,6 +46,8 @@
 
 #include <frc/AnalogInput.h>
 #include <frc/Ultrasonic.h>
+
+
 class Robot : public frc::TimedRobot 
 
 {
@@ -63,8 +67,11 @@ public:
     m_IntakeRotor.Set(percent);
     m_IntakeRotor.SetSmartCurrentLimit(amps);
   }
-  
+ //double Kp;
+ //double Ki;
+ //double Kd;
 
+  
 private:
  
  frc::Joystick m_joystick{0};
@@ -72,14 +79,9 @@ private:
  frc::Timer m_timer;
  frc::SendableChooser<std::string> m_chooser;
  //frc2::CommandScheduler::CommandScheduler 
-  
-  
-  frc::AnalogInput m_ultrasonic{0};
-  
-
-  
+ frc::AnalogInput m_ultrasonic{0};
   const std::string kAutoNameDefault = "Default";
-  const std::string kAutoNameCustom = "My Auto"; 
+  const std::string kAutoNameCustom = "My Auto";
   std::string m_autoSelected;
   rev::CANSparkMax m_ArmMotor{CAN_ID_ARM_MOTOR, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax m_IntakeRotor{CAN_ID_INTAKE_ROTOR, rev::CANSparkMax::MotorType::kBrushed};
@@ -90,36 +92,24 @@ private:
   std::function<double()> m_Forward;
   std::function<double()> m_Turn;
   std::function<double()> m_Slide;
-  //rev::SparkMaxAbsoluteEncoder m_encoder();
-  
- 
 
- frc::Compressor phCompressor{10, frc::PneumaticsModuleType::REVPH};
- frc::DoubleSolenoid DoublePH{10, frc::PneumaticsModuleType::REVPH, 1, 2};	
+ frc::Compressor phCompressor{0, frc::PneumaticsModuleType::REVPH};
+ frc::DoubleSolenoid DoublePH{1, frc::PneumaticsModuleType::REVPH, 8, 9};	
  bool enabled = phCompressor.Enabled();
-
- 
- 
- frc2::PIDController m_pidController3{-0.001,0.0,0.0};
+ bool pressureSwitch = phCompressor.GetPressureSwitchValue();
 
  
 // Initializes an encoder on DIO pins 0 and 1
 // Defaults to 4X decoding and non-inverted
 //frc::Encoder encoder{0, 1};
 
-// Initializes a duty cycle encoder on DIO pins 0
-frc::DutyCycleEncoder encoder{0};
-
 // Creates a PIDController with gains kP, kI, and kD
-/*
+
 rev::SparkMaxPIDController m_pidController = m_ArmMotor.GetPIDController();
 
-double kP = 0, kI = 0, kD = 0;
+// Encoder object created to display position values
+rev::SparkMaxRelativeEncoder m_encoder = m_ArmMotor.GetEncoder();
 
-rev::SparkMaxPIDController m_pidController2 = m_rigthMotor.GetPIDController();
-
-double Kp = 0, Ki = 0, Kd = 0;
-*/
 
 /*double Kp;
 double Ki;
@@ -131,4 +121,13 @@ double errorSum = error + errorChange;
 double correction = Kp*error + Ki*errorSum + Kd*errorChange;
 double lastError = error;
 cout << "correction: " << correction << endl;*/
+  // We can read the distance
+units::meter_t distance = m_rangeFinder.GetRange();
+  // units auto-convert
+ units::millimeter_t distanceMillimeters = distance;
+ units::inch_t distanceInches = distance;
+
+ // We can also publish the data itself periodically
+ frc::SmartDashboard::PutNumber("Distance[mm]", distanceMillimeters.value());
+ frc::SmartDashboard::PutNumber("Distance[inch]", distanceInches.value());
 };
