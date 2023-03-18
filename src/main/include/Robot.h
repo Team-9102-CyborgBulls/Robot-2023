@@ -25,6 +25,7 @@
 #include <frc/Joystick.h>
 #include "Constants.h"
 #include <ctre/phoenix/motorcontrol/can/TalonSRX.h>
+#include <frc/shuffleboard/Shuffleboard.h>
 #include <frc/smartdashboard/SendableChooser.h>
 #include <frc/drive/DifferentialDrive.h>
 #include <frc/motorcontrol/MotorControllerGroup.h>
@@ -35,7 +36,10 @@
 #include <frc/Compressor.h>
 #include <frc/DoubleSolenoid.h>
 #include <iostream>
-using namespace std;
+#include <rev/SparkMaxAbsoluteEncoder.h>
+#include <math.h>
+#include <frc/AnalogInput.h>
+#include <frc/AnalogGyro.h>
 
 
 class Robot : public frc::TimedRobot 
@@ -62,7 +66,7 @@ public:
 
   
 private:
- double m_count;
+ 
  frc::Joystick m_joystick{0};
  frc::XboxController m_XboxController{1};
  frc::Timer m_timer;
@@ -70,7 +74,8 @@ private:
  //frc2::CommandScheduler::CommandScheduler 
   const std::string kAutoNameDefault = "Default";
   const std::string kAutoNameCustom = "My Auto";
-  const std::string kAutoNameTest = "test5m";
+  const std::string kAutoNameTest = "test5m"; 
+
   std::string m_autoSelected;
   rev::CANSparkMax m_ArmMotor{CAN_ID_ARM_MOTOR, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax m_IntakeRotor{CAN_ID_INTAKE_ROTOR, rev::CANSparkMax::MotorType::kBrushed};
@@ -81,6 +86,7 @@ private:
   std::function<double()> m_Forward;
   std::function<double()> m_Turn;
   std::function<double()> m_Slide;
+  //rev::SparkMaxAbsoluteEncoder m_encoder();
 
 // frc::Compressor phCompressor{0, frc::PneumaticsModuleType::REVPH};
 // frc::DoubleSolenoid DoublePH{1, frc::PneumaticsModuleType::REVPH, 8, 9};	
@@ -96,8 +102,8 @@ private:
 
 rev::SparkMaxPIDController m_pidController = m_ArmMotor.GetPIDController();
 
-// Encoder object created to display position values
-rev::SparkMaxRelativeEncoder m_encoder = m_ArmMotor.GetEncoder();
+double kP = 0, kI = 0, kD = 0;
+
 
 
 /*double Kp;
@@ -110,4 +116,9 @@ double errorSum = error + errorChange;
 double correction = Kp*error + Ki*errorSum + Kd*errorChange;
 double lastError = error;
 cout << "correction: " << correction << endl;*/
+
+frc::AnalogInput ultrasons{0};
+frc::AnalogGyro gyroX{1};
+frc::AnalogInput gyroY{2};
+frc::AnalogInput gyroZ{3};
 };

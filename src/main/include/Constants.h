@@ -27,7 +27,7 @@
 // ################## VOLTAGE_COMPENSATION ##################
 // Drivetrain
 #define VOLTAGE_COMPENSATION_DRIVETRAIN_MOTOR 11.0
-//#define VOLTAGE_COMPENSATION_ARM_MOTOR 6
+#define VOLTAGE_COMPENSATION_ARM_MOTOR 11.0 
 
 
 #define TRACKWIDTH 0.61f
