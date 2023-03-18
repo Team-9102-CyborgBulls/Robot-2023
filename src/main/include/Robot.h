@@ -39,6 +39,8 @@
 #include <units/pressure.h>
 #include <frc/DutyCycleEncoder.h>
 #include <frc/PneumaticsControlModule.h>
+#include <frc/Ultrasonic.h>
+#include <frc/AnalogInput.h>
 
 
 class Robot : public frc::TimedRobot 
@@ -82,7 +84,7 @@ private:
   std::function<double()> m_Turn;
   std::function<double()> m_Slide;
 
-  
+
  
 
  frc::Compressor phCompressor{10, frc::PneumaticsModuleType::REVPH};
@@ -99,16 +101,18 @@ private:
 //frc::DutyCycleEncoder encoder{0};
 
 // Creates a PIDController with gains kP, kI, and kD
-//rev::SparkMaxAbsoluteEncoder m_encoder = m_ArmMotor.GetEncoder(); 
+//rev::SparkMaxAbsoluteEncoder m_encoder() = m_ArmMotor.GetAbsoluteEncoder(); 
 rev::SparkMaxRelativeEncoder m_encoder = m_ArmMotor.GetEncoder();
 
+frc::AnalogInput m_ultrasonic{0};
 rev::SparkMaxPIDController m_pidController = m_ArmMotor.GetPIDController();
+frc2::PIDController m_pidController3{-0.1,0.0,0.0};
+double PositionEncoder = -m_encoder.GetPosition();
+double kP = 0.01, kI = 0, kD = 0, kFF=0.2*sin(PositionEncoder*(1.0/152.0)*360.0) , kMaxOutput = 1, kMinOutput = -1, rotations = 0, kIz = 0;
 
-double kP = 0.001, kI = 0, kD = 0, kFF=0.675, kMaxOutput = 1, kMinOutput = -1, rota = 3;
 
 
-
-/*double Kp;
+/*double Kp; 
 double Ki;
 double Kd;
 double targetCurrent = 0;//le setpoint
