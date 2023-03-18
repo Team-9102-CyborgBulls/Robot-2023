@@ -15,7 +15,9 @@
 #include <frc/geometry/Transform3d.h>
 #include <networktables/IntegerArrayTopic.h>
 #include <networktables/NetworkTableInstance.h>
-
+#include <opencv2/core/core.hpp>
+#include <opencv2/core/types.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <units/angle.h>
 #include <units/length.h>
 #include <cameraserver/CameraServer.h>
@@ -37,6 +39,17 @@
 #include <rev/SparkMaxAbsoluteEncoder.h>
 #include <math.h>
 
+#include <frc/Encoder.h>
+#include <units/pressure.h>
+#include <frc/DutyCycleEncoder.h>
+#include <frc/PneumaticsControlModule.h>
+#include <frc/AnalogInput.h>
+
+
+#include <frc/AnalogInput.h>
+#include <frc/Ultrasonic.h>
+
+
 
 class Robot : public frc::TimedRobot 
 
@@ -57,6 +70,9 @@ public:
     m_IntakeRotor.Set(percent);
     m_IntakeRotor.SetSmartCurrentLimit(amps);
   }
+ //double Kp;
+ //double Ki;
+ //double Kd;
 
   
 private:
@@ -66,9 +82,10 @@ private:
  frc::Timer m_timer;
  frc::SendableChooser<std::string> m_chooser;
  //frc2::CommandScheduler::CommandScheduler 
+ frc::AnalogInput m_ultrasonic{0};
   const std::string kAutoNameDefault = "Default";
   const std::string kAutoNameCustom = "My Auto";
-  const std::string kAutoNameTest = "test5m"; 
+  const std::string kAutoNameTest = "test5m";
 
   std::string m_autoSelected;
   rev::CANSparkMax m_ArmMotor{CAN_ID_ARM_MOTOR, rev::CANSparkMax::MotorType::kBrushless};
@@ -92,17 +109,12 @@ private:
 // Defaults to 4X decoding and non-inverted
 //frc::Encoder encoder{0, 1};
 
-// Initializes a duty cycle encoder on DIO pins 0
-//frc::DutyCycleEncoder encoder{0};
-
 // Creates a PIDController with gains kP, kI, and kD
-//rev::SparkMaxAbsoluteEncoder m_encoder = m_ArmMotor.GetEncoder(); 
-rev::SparkMaxRelativeEncoder m_encoder = m_ArmMotor.GetEncoder();
 
 rev::SparkMaxPIDController m_pidController = m_ArmMotor.GetPIDController();
 
-double kP = 0.001, kI = 0, kD = 0, kFF=0.675, kMaxOutput = 1, kMinOutput = -1, rota = 3;
-
+// Encoder object created to display position values
+rev::SparkMaxRelativeEncoder m_encoder = m_ArmMotor.GetEncoder();
 
 
 /*double Kp;
@@ -116,8 +128,20 @@ double correction = Kp*error + Ki*errorSum + Kd*errorChange;
 double lastError = error;
 cout << "correction: " << correction << endl;*/
 
+
 frc::AnalogInput ultrasons{0};
 frc::AnalogGyro gyroX{1};
 frc::AnalogInput gyroY{2};
 frc::AnalogInput gyroZ{3};
+
+  // We can read the distance
+units::meter_t distance = m_rangeFinder.GetRange();
+  // units auto-convert
+ units::millimeter_t distanceMillimeters = distance;
+ units::inch_t distanceInches = distance;
+
+ // We can also publish the data itself periodically
+ frc::SmartDashboard::PutNumber("Distance[mm]", distanceMillimeters.value());
+ frc::SmartDashboard::PutNumber("Distance[inch]", distanceInches.value());
+
 };
